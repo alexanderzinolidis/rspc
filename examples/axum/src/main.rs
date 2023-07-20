@@ -41,13 +41,20 @@ async fn main() {
         .procedure("echo", R.query(|_, v: String| v))
         .procedure(
             "error",
-            R.query(|_, _: ()| {
+            R.error::<rspc::Error>().query(|_, _: ()| {
                 Err(rspc::Error::new(
                     rspc::ErrorCode::InternalServerError,
                     "Something went wrong".into(),
                 )) as Result<String, rspc::Error>
             }),
         )
+        // .procedure(
+        //     "customError",
+        //     R.error::<String>()
+        //     .query(|_, _: ()| {
+        //         Err("Something went wrong".to_string()) as Result<String, String>
+        //     }),
+        // )
         .procedure(
             "error",
             R.mutation(|_, _: ()| {

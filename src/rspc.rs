@@ -43,7 +43,10 @@ where
 
 macro_rules! resolver {
     ($func:ident, $kind:ident, $result_marker:ident) => {
-        pub fn $func<R, RMarker>(self, resolver: R) -> Procedure<RMarker, BaseMiddleware<TCtx>>
+        pub fn $func<R, RMarker>(
+            self,
+            resolver: R,
+        ) -> Procedure<RMarker, crate::Error, BaseMiddleware<TCtx>>
         where
             R: ResolverFunction<TCtx, RMarker>,
             R::Result: RequestLayer<R::RequestMarker, Type = $result_marker>,
@@ -67,7 +70,8 @@ where
     pub fn with<Mw: ConstrainedMiddleware<TCtx>>(
         self,
         mw: Mw,
-    ) -> Procedure<MissingResolver, MiddlewareLayerBuilder<BaseMiddleware<TCtx>, Mw>> {
+    ) -> Procedure<MissingResolver, crate::Error, MiddlewareLayerBuilder<BaseMiddleware<TCtx>, Mw>>
+    {
         Procedure::new(
             MissingResolver::default(),
             MiddlewareLayerBuilder {
@@ -81,7 +85,8 @@ where
     pub fn with2<Mw: Middleware<TCtx>>(
         self,
         mw: Mw,
-    ) -> Procedure<MissingResolver, MiddlewareLayerBuilder<BaseMiddleware<TCtx>, Mw>> {
+    ) -> Procedure<MissingResolver, crate::Error, MiddlewareLayerBuilder<BaseMiddleware<TCtx>, Mw>>
+    {
         Procedure::new(
             MissingResolver::default(),
             MiddlewareLayerBuilder {
@@ -89,6 +94,11 @@ where
                 mw,
             },
         )
+    }
+
+    // TODO: Copy onto `Procedure`?
+    pub fn error<E: 'static>(self) -> Procedure<MissingResolver, E, BaseMiddleware<TCtx>> {
+        todo!();
     }
 
     resolver!(query, Query, FutureMarkerType);

@@ -38,11 +38,12 @@ where
     }
 
     #[track_caller]
-    pub fn procedure<F, TArg, TResult, TResultMarker, TMiddleware>(
+    pub fn procedure<F, TArg, TResult, TResultMarker, TMiddleware, Err>(
         mut self,
         key: &'static str,
         procedure: Procedure<
             HasResolver<F, TMiddleware::LayerCtx, TArg, TResult, TResultMarker>,
+            Err,
             TMiddleware,
         >,
     ) -> Self
@@ -51,6 +52,7 @@ where
         TArg: Type + DeserializeOwned + 'static,
         TResult: RequestLayer<TResultMarker> + 'static,
         TResultMarker: 'static,
+        Err: 'static,
         TMiddleware: MiddlewareBuilder<Ctx = TCtx>,
     {
         if let Some(cause) = is_valid_name(key) {
